@@ -29,7 +29,7 @@ enum rx_byte_pos {
 /* uncomment to enable debug information to be printed */
 // #define DEBUG
 
-#define NR_DATA_BYTES 64    /* number of data bytes in one frame */
+#define NR_DATA_BYTES 31    /* number of data bytes in one frame */
 const uint8_t din_pin = 2;  /* arduino pin with attached bus signal, make sure
                                to use one that can handle interrupts */
 
@@ -121,6 +121,8 @@ void handle_decoding()
           Serial.print(" ");
         }
         Serial.println("*");
+        delay(10000);
+        RSTATE = INIT;
       #endif
   }
 }
@@ -191,6 +193,10 @@ void pin_data_received() {
   if (dt > bit_spacing_max_micros)
   {
     /* timeout! there must have been an edge */
+    #ifdef DEBUG
+      Serial.println("timout!");
+      Serial.print("at bit: "); Serial.println(rx_bits);
+    #endif    
     detachInterrupt(digitalPinToInterrupt(din_pin));
     RSTATE = ERR;
   }
