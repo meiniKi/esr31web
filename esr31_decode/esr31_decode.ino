@@ -1,6 +1,4 @@
 
-
-
 enum esr31_rx_state {
   ERR,
   INIT,
@@ -16,8 +14,6 @@ enum rx_byte_pos {
   STOP
 };
 
-
-
 #define buf_bytes_size 64
 
 const byte dataPin = 2;
@@ -25,7 +21,6 @@ const unsigned long bit_spacing_micros = 2049;
 const unsigned long bit_spacing_tol_micros = 200;
 const unsigned long bit_spacing_min_micros = bit_spacing_micros - bit_spacing_tol_micros;
 const unsigned long bit_spacing_max_micros = bit_spacing_micros + bit_spacing_tol_micros;
-
 
 volatile uint16_t hsync = 0;
 volatile esr31_rx_state RSTATE = INIT;
@@ -37,7 +32,6 @@ volatile rx_byte_pos rx_pos = START;
 
 void setup() {
   Serial.begin(115200);
-
 }
 
 void loop() {
@@ -88,6 +82,7 @@ void process_bit(uint8_t val) {
     rx_pos = DATA;
     if (val != 0)
     {
+      Serial.println("ERR: start bit wrong!");
       RSTATE = ERR;
     }
     return;
@@ -96,12 +91,12 @@ void process_bit(uint8_t val) {
   if (rx_pos == DATA)
   {
     rx_data[rx_bits / 8] |= (val != 0) << (rx_bits % 8);
-    rx_bits++;
 
     if ((rx_bits % 8) == 7) // last data bit
     {
       rx_pos = STOP;
     }
+    rx_bits++;
     return;
   }
 
@@ -114,9 +109,6 @@ void process_bit(uint8_t val) {
     }
     return;
   }
-
-  
-  
 }
 
 void pin_data_received() {
@@ -137,7 +129,7 @@ void pin_data_received() {
   {
     process_bit(val);
     last = now;
-    if (rx_bits >= 240)
+    if (rx_bits >= 248)
       RSTATE = DONE;
     return;
   }
