@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+""" *Simple* script to take the decoded values from the Arduino,
+interpret the bytes accordingly and hand these values over to
+a local influxdb.
+"""
 
 import serial
 from influxdb import InfluxDBClient
@@ -12,10 +17,11 @@ def esr31_parse(istring, into_dict):
     try:
         if len(istring) < 2:
             return True
+
         istring = istring.decode().strip()
-        print(istring)
         if istring[0] != "*" or istring[-1] != "*":
             return True
+
         dfbytes = [int(x, 16) for x in istring[2:-2].split(" ")]
         if dfbytes[0] != 0x70 or dfbytes[1] != 0x8f:
             return True
@@ -24,12 +30,19 @@ def esr31_parse(istring, into_dict):
         if checksum != dfbytes[-1]:
             return True
 
+        # Tempartur Sensor 1
         fields["SOLART1"] = (float((((dfbytes[3] - 0x20) << 8) | dfbytes[2])) / 10, "temp")
+        # Tempartur Sensor 2
         fields["SOLART2"] = (float((((dfbytes[5] - 0x20) << 8) | dfbytes[4])) / 10, "temp")
+        # Tempartur Sensor 3
         fields["SOLART3"] = (float((((dfbytes[7] - 0x20) << 8) | dfbytes[6])) / 10, "temp")
+        # Relays Output 1: Pump
         fields["SOLARO1"] = (dfbytes[20] & 0x01, "state")
-        # TODO: add other fields
+        # ---                  ---
+        # --- Add other fields ---
+        # ---                  ---
         return False
+
     except Exception as e:
         print(e)
         return True
@@ -52,7 +65,6 @@ if __name__ == "__main__":
         json_body.append({"measurement": key, "fields": {value[1]: value[0]}})
 
     try:
-        #print(json_body)
         client = InfluxDBClient(host=HOST, port=PORT, database=DB_NAME, timeout=3)
         client.write_points(json_body)
 
@@ -60,9 +72,6 @@ if __name__ == "__main__":
         print("Error: " + str(e))
 
     try:
-        #pass
         client.close()
     except Exception as e: 
         print("Error: " + str(e))
-
-

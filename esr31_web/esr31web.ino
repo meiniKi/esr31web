@@ -3,7 +3,7 @@
 * 
 * Usage: *Simple* firmware file to decode the DL-Bus signal 
 *        from an ESR31 solar controller and forward the data
-*        bytes via serial. The file provides is quick test 
+*        bytes via serial. The file provides a quick test 
 *        script and does not inlcude any error handling etc.
 *
 * Author: Meinhard Kissich
