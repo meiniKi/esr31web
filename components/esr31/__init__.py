@@ -3,7 +3,6 @@ import esphome.config_validation as cv
 from esphome import pins
 from esphome.const import CONF_ID, CONF_PIN
 
-DEPENDENCIES = ['arduino']
 AUTO_LOAD = ['sensor', 'binary_sensor']
 
 esr31_ns = cg.esphome_ns.namespace('esr31')
